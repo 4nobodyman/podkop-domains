@@ -1,0 +1,5 @@
+# podkop: свои домены в туннель (domain_suffix, покрывает поддомены)
+# Подключено как remote_domain_lists. Одна запись на строку, строчными буквами.
+facetime.apple.com
+teenage.engineering
+healthchecks.io
