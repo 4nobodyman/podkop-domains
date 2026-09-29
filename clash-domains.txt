@@ -1,3 +1,0 @@
-+.facetime.apple.com
-+.healthchecks.io
-+.teenage.engineering
