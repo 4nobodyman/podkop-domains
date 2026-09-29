@@ -23,12 +23,14 @@ jobs:
 
       - name: Закоммитить, если изменилось
         run: |
-          if git diff --quiet -- clash-domains.txt; then
+          # add до проверки: git diff не видит неотслеживаемый файл и на
+          # отсутствующем clash-domains.txt молча отчитался бы "не изменился"
+          git add clash-domains.txt
+          if git diff --cached --quiet -- clash-domains.txt; then
             echo "clash-domains.txt не изменился"
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add clash-domains.txt
           git commit -m "build: обновить clash-domains.txt из domains.lst"
           git push
