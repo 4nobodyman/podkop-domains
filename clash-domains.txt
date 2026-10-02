@@ -1,4 +1,5 @@
 +.facetime.apple.com
 +.healthchecks.io
++.playstation.com
 +.teenage.engineering
 +.teenagemanual.com
