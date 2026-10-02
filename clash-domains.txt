@@ -1,5 +1,6 @@
 +.facetime.apple.com
 +.healthchecks.io
++.my.account.sony.com
 +.playstation.com
 +.teenage.engineering
 +.teenagemanual.com
