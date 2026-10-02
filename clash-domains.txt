@@ -1,6 +1,7 @@
-+.account.sony.com
 +.facetime.apple.com
 +.healthchecks.io
 +.playstation.com
++.sony.com
++.sonyentertainmentnetwork.com
 +.teenage.engineering
 +.teenagemanual.com
