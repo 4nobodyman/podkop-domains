@@ -1,5 +1,7 @@
 +.facetime.apple.com
 +.healthchecks.io
++.notebooklm.google
++.notebooklm.google.com
 +.playstation.com
 +.sony.com
 +.sonyentertainmentnetwork.com
