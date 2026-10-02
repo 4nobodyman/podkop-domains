@@ -46,6 +46,21 @@ def main() -> int:
         seen.add(line)
         out.append(line)
 
+    # Записи суффиксные, поэтому более широкий домен покрывает все свои
+    # поддомены. Узкая строка рядом с широкой ничего не добавляет и со
+    # временем превращается в мусор, который все боятся трогать.
+    covered = set(out)
+    for d in out:
+        parent = d
+        while "." in parent:
+            parent = parent.split(".", 1)[1]
+            if parent in covered:
+                bad.append(
+                    f"{d!r}: уже покрыт записью {parent!r} — суффикс включает поддомены, "
+                    f"удалите узкую строку"
+                )
+                break
+
     if bad:
         print("Ошибки в domains.lst:", file=sys.stderr)
         for b in bad:
