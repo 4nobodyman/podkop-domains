@@ -1,3 +1,4 @@
++.build.nvidia.com
 +.facetime.apple.com
 +.healthchecks.io
 +.notebooklm.google
