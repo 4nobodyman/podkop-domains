@@ -1,6 +1,7 @@
 +.build.nvidia.com
 +.claudeusercontent.com
 +.facetime.apple.com
++.fm1-editor.com
 +.groove-os.com
 +.healthchecks.io
 +.notebooklm.google
