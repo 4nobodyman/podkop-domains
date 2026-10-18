@@ -1,3 +1,4 @@
++.baudgirl.com
 +.build.nvidia.com
 +.claudeusercontent.com
 +.facetime.apple.com
