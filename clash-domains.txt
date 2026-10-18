@@ -11,3 +11,4 @@
 +.sonyentertainmentnetwork.com
 +.teenage.engineering
 +.teenagemanual.com
++.thefirmwarehub.com
