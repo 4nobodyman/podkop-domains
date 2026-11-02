@@ -8,8 +8,10 @@
 +.notebooklm.google
 +.notebooklm.google.com
 +.playstation.com
++.slopalytics.com
 +.sony.com
 +.sonyentertainmentnetwork.com
++.t3.codes
 +.teenage.engineering
 +.teenagemanual.com
 +.thefirmwarehub.com
