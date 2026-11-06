@@ -1,50 +1,84 @@
 # podkop-domains
 
-Личный список доменов для раздельного туннелирования. Один источник правды на
-две системы с разной семантикой суффиксов.
+Личные правила раздельного туннелирования для Podkop, mihomo/Clash и AmneziaVPN.
 
-## Как пользоваться
+## Что править
 
-Правится **только `domains.lst`** — голые домены, по одному на строку, `#` для
-комментариев. Каждая запись трактуется как суффикс: домен и все его поддомены.
+- `domains.lst` — ручные домены, по одному на строку. Запись охватывает домен
+  и все его поддомены в Podkop. Здесь уже есть `facetime.apple.com`.
+- `user_subnets.lst` — ручные IPv4-подсети для JSON Amnezia. Сейчас содержит
+  `17.0.0.0/8` для сервисов Apple и FaceTime. При изменении этого файла
+  синхронизируйте `user_subnets` на роутере вручную: GitHub Actions роутер
+  не перенастраивает.
 
-После пуша GitHub Action пересобирает `clash-domains.txt`. Руками его не трогать.
+`clash-domains.txt` и `ip-list-amnezia.json` генерируются автоматически.
+Их не нужно редактировать.
 
-## Почему два файла
+## Файлы для использования
 
-| Система | Файл | Формат |
+| Клиент | Файл | Как использовать |
 |---|---|---|
-| Podkop / sing-box (`remote_domain_lists`) | `domains.lst` | `healthchecks.io` — уже `domain_suffix`, поддомены покрыты |
-| mihomo / Clash (`rule-providers`, `behavior: domain`, `format: text`) | `clash-domains.txt` | `+.healthchecks.io` — голый домен здесь означал бы только точное совпадение |
+| Podkop / sing-box | [`domains.lst`](domains.lst) | URL в `remote_domain_lists`; записи работают как `domain_suffix` |
+| mihomo / Clash | [`clash-domains.txt`](clash-domains.txt) | `rule-provider` с `behavior: domain`, `format: text`; записи имеют префикс `+.` |
+| AmneziaVPN | [`ip-list-amnezia.json`](ip-list-amnezia.json) | Импорт списка сайтов/IP в режиме «Только адреса из списка через VPN» |
 
-## Ссылки для конфигов
+Прямые ссылки для конфигов и загрузки:
 
-Podkop, `remote_domain_lists`:
-
-```
+```text
 https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/domains.lst
-```
-
-mihomo, `rule-providers.my_domains.url`:
-
-```
 https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/clash-domains.txt
+https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/ip-list-amnezia.json
 ```
 
-## Локальная проверка
+Для AmneziaVPN скачайте последний URL как файл и импортируйте его в настройках
+раздельного туннелирования сайтов/IP. Выберите «Заменить список», если хотите
+точно этот набор правил, или «Добавить к существующему», если свои записи
+должны сохраниться. После импорта переподключите VPN.
+[Официальная инструкция AmneziaVPN](https://docs.amnezia.org/documentation/instructions/vpn-split-tunneling/).
+
+## Откуда берётся JSON Amnezia
+
+Сборка объединяет те же категории, что были включены на роутере 6 ноября
+2026 года:
+
+1. `russia_inside` — домены из
+   [`Russia/inside-raw.lst`](https://github.com/itdoginfo/allow-domains/blob/main/Russia/inside-raw.lst).
+2. `telegram` — [домены](https://github.com/itdoginfo/allow-domains/blob/main/Services/telegram.lst)
+   и [IPv4-подсети](https://github.com/itdoginfo/allow-domains/blob/main/Subnets/IPv4/telegram.lst).
+3. `google_ai` — [домены](https://github.com/itdoginfo/allow-domains/blob/main/Services/google_ai.lst).
+4. Ручные `domains.lst` и `user_subnets.lst` из этого репозитория.
+
+GitHub Action `build routing lists` запускается ежедневно примерно в 06:17
+по Москве, при изменении ручных исходников и вручную через Actions → Run
+workflow. При изменении содержимого он коммитит оба готовых файла в `main`.
+Если внешний список недоступен или пуст, сборка падает и оставляет последний
+готовый JSON без изменений. Списки на роутере и JSON не обновляются атомарно;
+для нового ручного правила меняйте соответствующий файл здесь и настройку
+роутера, если она применяется там отдельно.
+
+## Ограничения AmneziaVPN
+
+JSON содержит CIDR-подсети и доменные имена. Podkop умеет сопоставлять
+`domain_suffix` и все поддомены; AmneziaVPN может обрабатывать импортированные
+имена иначе. Запись `.ua` из `russia_inside` пропускается, потому что это
+суффикс зоны, а не импортируемый адрес сайта. Поэтому JSON не является точной
+копией поведения Podkop.
+
+Для macOS есть [отчёт о проблеме](https://github.com/amnezia-vpn/amnezia-client/issues/3240):
+в некоторых версиях импорт доменов с пустым `ip` не создаёт маршруты,
+тогда как CIDR-записи работают. Проверяйте нужные сайты и FaceTime после
+импорта; работа видеозвонка зависит также от сети и разрешённых UDP-портов.
+
+## Локальная сборка и проверка
 
 ```bash
 python3 scripts/build.py
+python3 scripts/build_amnezia.py
 ```
 
-Скрипт падает с ненулевым кодом, если в `domains.lst` попали wildcard-префиксы,
-IP-адреса или подсети — подсети задаются в подкоп отдельной настройкой
-`user_subnets`, не здесь.
-
-Он также отклоняет **поглощённые домены**: запись суффиксная, поэтому
-`playstation.com` уже покрывает `store.playstation.com`, и держать обе строки
-незачем. Такая проверка не даёт списку обрасти мёртвыми записями, про которые
-потом непонятно, нужны они ещё или нет.
-
-Разные зоны поглощением не считаются: `notebooklm.google` и
-`notebooklm.google.com` — две независимые записи, обе нужны.
+`build.py` отклоняет wildcard, IP-адреса и поглощённые домены в
+`domains.lst`: например, `playstation.com` уже покрывает
+`store.playstation.com`. Разные зоны, такие как `notebooklm.google` и
+`notebooklm.google.com`, независимы. `build_amnezia.py` проверяет
+корректность подсетей и наличие правил FaceTime, удаляет повторы и выдаёт
+JSON с полями `hostname` и `ip`.
