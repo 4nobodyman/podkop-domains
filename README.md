@@ -48,3 +48,26 @@ IP-адреса или подсети — подсети задаются в п�
 
 Разные зоны поглощением не считаются: `notebooklm.google` и
 `notebooklm.google.com` — две независимые записи, обе нужны.
+
+## AmneziaVPN: ежедневный JSON
+
+`ip-list-amnezia.json` — файл для импорта в режим «Только адреса из списка через VPN».
+GitHub Actions обновляет его ежедневно в 06:17 по Москве и при изменении
+`domains.lst` или `user_subnets.lst`. Сборка объединяет действующие источники
+Podkop: `russia_inside`, `telegram` (домены и IPv4-подсети), `google_ai`,
+ручной `domains.lst` и ручной `user_subnets.lst` (включая `17.0.0.0/8`
+для FaceTime). Правьте только эти два ручных исходных файла; JSON генерируется.
+
+Скачать готовый файл:
+
+```
+https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/ip-list-amnezia.json
+```
+
+Запуск вручную: Actions → `build Amnezia split list` → Run workflow.
+Для локальной сборки: `python3 scripts/build_amnezia.py`.
+
+Формат Amnezia хранит домены как отдельные записи, но не воспроизводит
+семантику `domain_suffix` Podkop и не обновляет IP-адреса при изменении DNS.
+На macOS есть [отчёт о проблеме с маршрутами для доменных записей](https://github.com/amnezia-vpn/amnezia-client/issues/3240);
+CIDR-записи работают независимо от этой особенности.
