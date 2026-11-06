@@ -21,6 +21,8 @@ SOURCES = {
 }
 GOOGLE_RANGES = "https://www.gstatic.com/ipranges/goog.json"
 GOOGLE_CLOUD_RANGES = "https://www.gstatic.com/ipranges/cloud.json"
+# Anthropic's published IPv4 range restored Claude on the user's iPhone.
+ANTHROPIC_SUBNET = "160.79.104.0/23"
 
 
 def lines(content):
@@ -159,7 +161,8 @@ def main():
         raise ValueError(f"Unsupported domain entries: {skipped}")
     domains = sorted({value for value in raw_domains if valid_domain(value)})
 
-    raw_subnets = remote["telegram_subnets"] + remote["meta_subnets"] + local_subnets
+    raw_subnets = (remote["telegram_subnets"] + remote["meta_subnets"]
+                   + local_subnets + [ANTHROPIC_SUBNET])
     subnets = sorted(({ipaddress.ip_network(value, strict=True) for value in raw_subnets}
                       | set(google_service_subnets())),
                      key=lambda net: (net.version, int(net.network_address), net.prefixlen))
