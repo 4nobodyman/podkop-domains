@@ -5,7 +5,7 @@
 
 ## Как пользоваться
 
-Правится **только `domains.lst`** — голые домены, по одному на строку, `#` для
+Для доменов правится **только `domains.lst`** — голые домены, по одному на строку, `#` для
 комментариев. Каждая запись трактуется как суффикс: домен и все его поддомены.
 
 После пуша GitHub Action пересобирает `clash-domains.txt`. Руками его не трогать.
@@ -64,7 +64,7 @@ Podkop: `russia_inside`, `telegram` (домены и IPv4-подсети), `goog
 https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/ip-list-amnezia.json
 ```
 
-Запуск вручную: Actions → `build Amnezia split list` → Run workflow.
+Запуск вручную: Actions → `build routing lists` → Run workflow.
 Для локальной сборки: `python3 scripts/build_amnezia.py`.
 
 Формат Amnezia хранит домены как отдельные записи, но не воспроизводит
