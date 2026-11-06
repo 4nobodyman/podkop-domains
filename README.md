@@ -11,7 +11,7 @@
   синхронизируйте `user_subnets` на роутере вручную: GitHub Actions роутер
   не перенастраивает.
 
-`clash-domains.txt` и `ip-list-amnezia.json` генерируются автоматически.
+`clash-domains.txt`, `ip-list-amnezia.json` и `allowedips-amneziawg.txt` генерируются автоматически.
 Их не нужно редактировать.
 
 ## Файлы для использования
@@ -21,6 +21,7 @@
 | Podkop / sing-box | [`domains.lst`](domains.lst) | URL в `remote_domain_lists`; записи работают как `domain_suffix` |
 | mihomo / Clash | [`clash-domains.txt`](clash-domains.txt) | `rule-provider` с `behavior: domain`, `format: text`; записи имеют префикс `+.` |
 | AmneziaVPN | [`ip-list-amnezia.json`](ip-list-amnezia.json) | Импорт списка сайтов/IP в режиме «Только адреса из списка через VPN» |
+| AmneziaWG на Mac | [`allowedips-amneziawg.txt`](allowedips-amneziawg.txt) | Скопировать содержимое файла в значение `AllowedIPs` у `[Peer]` |
 
 Прямые ссылки для конфигов и загрузки:
 
@@ -28,6 +29,7 @@
 https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/domains.lst
 https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/clash-domains.txt
 https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/ip-list-amnezia.json
+https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/allowedips-amneziawg.txt
 ```
 
 Для AmneziaVPN скачайте последний URL как файл и импортируйте его в настройках
@@ -62,11 +64,22 @@ Podkop на роутере при этом не меняются.
 
 GitHub Action `build routing lists` запускается ежедневно примерно в 06:17
 по Москве, при изменении ручных исходников и вручную через Actions → Run
-workflow. При изменении содержимого он коммитит оба готовых файла в `main`.
+workflow. При изменении содержимого он коммитит все три готовых файла в `main`.
 Если внешний список недоступен, пуст или разрешилось менее 80% доменов,
 сборка падает и оставляет последний готовый JSON без изменений. Списки на роутере и JSON не обновляются атомарно;
 для нового ручного правила меняйте соответствующий файл здесь и настройку
 роутера, если она применяется там отдельно.
+
+## AmneziaWG на Mac
+
+`allowedips-amneziawg.txt` собирается из тех же IPv4-адресов и подсетей, что
+`ip-list-amnezia.json`. Файл содержит только значение для `AllowedIPs`: одну
+строку с адресами и CIDR через запятую, без `AllowedIPs =` и без ключей VPN.
+Скопируйте всю строку в поле `AllowedIPs` секции `[Peer]` своей конфигурации.
+Это направляет перечисленные адреса через туннель; остальные адреса идут
+напрямую. Не добавляйте `0.0.0.0/0` или `::/0`, если нужен раздельный режим.
+После обновления файла в GitHub строку в приложении нужно заменить вручную
+и переподключить туннель. Конфигурацию с `PrivateKey` не публикуйте.
 
 ## Как устроен импорт AmneziaVPN на iPhone
 
@@ -113,6 +126,7 @@ FaceTime дополнительно покрыт подсетью Apple `17.0.0.
 ```bash
 python3 scripts/build.py
 python3 scripts/build_amnezia.py
+python3 scripts/build_allowedips.py
 ```
 
 `build.py` отклоняет wildcard, IP-адреса и поглощённые домены в

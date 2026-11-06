@@ -11,6 +11,7 @@ on:
       - user_subnets.lst
       - scripts/build.py
       - scripts/build_amnezia.py
+      - scripts/build_allowedips.py
       - .github/workflows/build.yml
 
 permissions:
@@ -29,10 +30,11 @@ jobs:
         run: |
           python3 scripts/build.py
           python3 scripts/build_amnezia.py
+          python3 scripts/build_allowedips.py
       - name: Commit changed files
         run: |
-          git add clash-domains.txt ip-list-amnezia.json
-          if git diff --cached --quiet -- clash-domains.txt ip-list-amnezia.json; then
+          git add clash-domains.txt ip-list-amnezia.json allowedips-amneziawg.txt
+          if git diff --cached --quiet -- clash-domains.txt ip-list-amnezia.json allowedips-amneziawg.txt; then
             echo "Routing lists are unchanged"
             exit 0
           fi
