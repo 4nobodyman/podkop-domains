@@ -38,8 +38,8 @@ https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/ip-list-amnezia
 
 ## Откуда берётся JSON Amnezia
 
-Сборка объединяет те же категории, что были включены на роутере 6 ноября
-2026 года:
+Сборка объединяет категории, включённые на роутере 6 ноября 2026 года,
+и дополнительные IP-диапазоны для воспроизведения медиа на iPhone:
 
 1. `russia_inside` — домены из
    [`Russia/inside-raw.lst`](https://github.com/itdoginfo/allow-domains/blob/main/Russia/inside-raw.lst).
@@ -47,6 +47,16 @@ https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/ip-list-amnezia
    и [IPv4-подсети](https://github.com/itdoginfo/allow-domains/blob/main/Subnets/IPv4/telegram.lst).
 3. `google_ai` — [домены](https://github.com/itdoginfo/allow-domains/blob/main/Services/google_ai.lst).
 4. Ручные `domains.lst` и `user_subnets.lst` из этого репозитория.
+5. [IPv4-диапазоны Meta](https://github.com/itdoginfo/allow-domains/blob/main/Subnets/IPv4/meta.lst)
+   для медиа Instagram.
+6. [Диапазоны Google](https://www.gstatic.com/ipranges/goog.json) за вычетом
+   [Google Cloud](https://www.gstatic.com/ipranges/cloud.json) для видео YouTube.
+   Вычитание соответствует [рекомендации Google](https://knowledge.workspace.google.com/admin/security/obtain-google-ip-address-ranges).
+
+Пункты 5 и 6 добавлены для Amnezia после проверки на iPhone: одних IP
+корневых доменов не хватало для видео YouTube и загрузки Instagram. Они
+направляют через VPN и другой трафик к адресам Google и Meta. Настройки
+Podkop на роутере при этом не меняются.
 
 GitHub Action `build routing lists` запускается ежедневно примерно в 06:17
 по Москве, при изменении ручных исходников и вручную через Actions → Run
@@ -78,9 +88,9 @@ workflow. При изменении содержимого он коммитит
 ## Ограничения AmneziaVPN
 
 Podkop сопоставляет доменные суффиксы и все поддомены, а JSON Amnezia
-содержит снимок IP-адресов только основного домена и `www`. Другие
-поддомены и новые CDN-адреса могут потребовать отдельной записи или
-нового импорта. Если DNS не вернул публичный IPv4-адрес, домен
+хранит снимок IP-адресов основного домена и `www`. Для YouTube и Instagram
+добавлены сетевые диапазоны Google и Meta; другие поддомены и новые
+CDN-адреса всё ещё могут потребовать отдельной записи или нового импорта. Если DNS не вернул публичный IPv4-адрес, домен
 пропускается; список пропусков выводится в лог сборки. При временном
 сбое DNS генератор сохраняет ранее полученные публичные IP из
 предыдущего JSON. Запись `.ua` из `russia_inside` пропускается,
