@@ -4,6 +4,7 @@
 +.claudeusercontent.com
 +.facetime.apple.com
 +.fm1-editor.com
++.globallap.com
 +.groove-os.com
 +.healthchecks.io
 +.notebooklm.google
