@@ -52,8 +52,10 @@ https://raw.githubusercontent.com/4nobodyman/podkop-domains/main/ip-list-amnezia
 6. [Диапазоны Google](https://www.gstatic.com/ipranges/goog.json) за вычетом
    [Google Cloud](https://www.gstatic.com/ipranges/cloud.json) для видео YouTube.
    Вычитание соответствует [рекомендации Google](https://knowledge.workspace.google.com/admin/security/obtain-google-ip-address-ranges).
+7. [IPv4-диапазон Anthropic `160.79.104.0/23`](https://platform.claude.com/docs/en/api/ip-addresses),
+   проверенный на iPhone для Claude.
 
-Пункты 5 и 6 добавлены для Amnezia после проверки на iPhone: одних IP
+Пункты 5–7 добавлены для Amnezia после проверки на iPhone: одних IP
 корневых доменов не хватало для видео YouTube и загрузки Instagram. Они
 направляют через VPN и другой трафик к адресам Google и Meta. Настройки
 Podkop на роутере при этом не меняются.
@@ -98,6 +100,11 @@ CDN-адреса всё ещё могут потребовать отдельн�
 в набор IP-адресов.
 
 Поэтому JSON приближает, но не полностью повторяет правила Podkop.
+На iOS раздельное туннелирование Amnezia поддерживает только IPv4;
+приложения, использующие несколько динамических адресов или IPv6, могут
+не работать с таким списком. В частности, добавление отдельных известных
+адресов ChatGPT не обеспечило работу его iOS-приложения на мобильной сети.
+Для таких приложений используйте полный VPN.
 FaceTime дополнительно покрыт подсетью Apple `17.0.0.0/8`; работу
 видеозвонка проверяйте на устройстве.
 
