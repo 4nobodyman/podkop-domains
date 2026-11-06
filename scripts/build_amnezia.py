@@ -6,6 +6,8 @@ import json
 import pathlib
 import sys
 import urllib.request
+import urllib.parse
+from concurrent.futures import ThreadPoolExecutor
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUTPUT = ROOT / "ip-list-amnezia.json"
@@ -44,6 +46,48 @@ def valid_domain(value):
     )
 
 
+def resolve_ipv4(domain):
+    result = set()
+    for name in (domain, f"www.{domain}"):
+        try:
+            url = "https://dns.google/resolve?" + urllib.parse.urlencode({"name": name, "type": "A"})
+            request = urllib.request.Request(url, headers={"User-Agent": "podkop-domains-amnezia-builder/1.0"})
+            with urllib.request.urlopen(request, timeout=10) as response:
+                data = json.load(response)
+        except (OSError, ValueError):
+            continue
+        if data.get("Status") != 0:
+            continue
+        for answer in data.get("Answer", []):
+            if answer.get("type") == 1:
+                try:
+                    ip = ipaddress.IPv4Address(answer["data"])
+                except (ValueError, KeyError):
+                    continue
+                if ip.is_global:
+                    result.add(str(ip))
+    return sorted(result, key=lambda ip: int(ipaddress.IPv4Address(ip)))
+
+
+def previous_ips():
+    if not OUTPUT.exists():
+        return {}
+    try:
+        entries = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        return {entry["hostname"]: [ip for ip in entry.get("ips", [])
+                                     if isinstance(ip, str) and is_public_ipv4(ip)]
+                for entry in entries if isinstance(entry, dict) and isinstance(entry.get("ips"), list)}
+    except (OSError, ValueError, KeyError, TypeError):
+        return {}
+
+
+def is_public_ipv4(value):
+    try:
+        return ipaddress.IPv4Address(value).is_global
+    except ValueError:
+        return False
+
+
 def main():
     remote = {name: lines(download(url)) for name, url in SOURCES.items()}
     if any(not values for values in remote.values()):
@@ -66,10 +110,30 @@ def main():
                      key=lambda net: (net.version, int(net.network_address), net.prefixlen))
     if not subnets or not domains:
         raise ValueError("Generated list is empty")
-    entries = [{"hostname": str(net), "ip": ""} for net in subnets]
-    entries.extend({"hostname": domain, "ip": ""} for domain in domains)
+    # iOS 5.0.0.5 strips CIDR masks from hostname on import. A unique placeholder
+    # keeps the subnet in ip/ips, which the client passes to the tunnel unchanged.
+    entries = []
+    for net in subnets:
+        cidr = str(net)
+        placeholder = "cidr-" + cidr.replace(".", "-").replace(":", "-").replace("/", "-d") + ".invalid"
+        entries.append({"hostname": placeholder, "ips": [cidr], "ip": cidr})
+
+    old_ips = previous_ips()
+    with ThreadPoolExecutor(max_workers=16) as pool:
+        resolved = dict(zip(domains, pool.map(resolve_ipv4, domains)))
+    unresolved = []
+    for domain in domains:
+        ips = resolved[domain] or old_ips.get(domain, [])
+        if not ips:
+            unresolved.append(domain)
+            continue
+        entries.append({"hostname": domain, "ips": ips, "ip": ips[0]})
+    if len(entries) - len(subnets) < len(domains) * 0.8:
+        raise ValueError("Too few domains resolved; refusing to replace the last good file")
     OUTPUT.write_text(json.dumps(entries, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {OUTPUT.name}: {len(subnets)} CIDR ranges, {len(domains)} domains")
+    print(f"Wrote {OUTPUT.name}: {len(subnets)} CIDR ranges, {len(entries) - len(subnets)} resolved domains")
+    if unresolved:
+        print(f"Unresolved domains omitted ({len(unresolved)}): {', '.join(unresolved[:20])}", file=sys.stderr)
     if skipped:
         print(f"Skipped unsupported suffix-only entries: {', '.join(skipped)}", file=sys.stderr)
 
