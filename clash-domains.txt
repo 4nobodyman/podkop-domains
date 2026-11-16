@@ -1,9 +1,11 @@
++.8-lives-cat.io
 +.anymodel.org
 +.auth0.com
 +.baudgirl.com
 +.build.nvidia.com
 +.cdn.openaimerge.com
 +.challenges.cloudflare.com
++.chatgpt.com
 +.claudeusercontent.com
 +.client-api.arkoselabs.com
 +.events.statsigapi.net
@@ -23,7 +25,9 @@
 +.openai.com
 +.openaicom.imgix.net
 +.playstation.com
++.revenuecat.com
 +.rum.browser-intake-datadoghq.com
++.sentry.io
 +.slopalytics.com
 +.sony.com
 +.sonyentertainmentnetwork.com
