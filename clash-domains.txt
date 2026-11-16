@@ -1,6 +1,8 @@
++.8-lives-cat.io
 +.anymodel.org
 +.baudgirl.com
 +.build.nvidia.com
++.chatgpt.com
 +.claudeusercontent.com
 +.facetime.apple.com
 +.fm1-editor.com
@@ -8,7 +10,10 @@
 +.healthchecks.io
 +.notebooklm.google
 +.notebooklm.google.com
++.openai.com
 +.playstation.com
++.revenuecat.com
++.sentry.io
 +.slopalytics.com
 +.sony.com
 +.sonyentertainmentnetwork.com
